@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Lucky Dice Casino</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+:root{
+  --bg:#0a0a0f;
+  --bg2:#111118;
+  --bg3:#18181f;
+  --card:#1a1a24;
+  --border:#2a2a3a;
+  --gold:#f5c842;
+  --gold2:#e8a820;
+  --gold-glow:rgba(245,200,66,.25);
+  --gold-bg:rgba(245,200,66,.07);
+  --red:#e84040;
+  --red-bg:rgba(232,64,64,.1);
+  --green:#3ddc84;
+  --green-bg:rgba(61,220,132,.1);
+  --blue:#4f8ef7;
+  --text:#e8e0d0;
+  --text-dim:#6a6480;
+  --text-muted:#3a3448;
+  --shadow:rgba(0,0,0,.6);
+}
+
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;overflow-x:hidden}
+
+/* ── SPLASH ── */
+#splash{
+  position:fixed;inset:0;z-index:999;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:24px;
+}
+.splash-logo{
+  width:110px;height:110px;
+  background:linear-gradient(135deg,#1a1428,#0f0f1a);
+  border:2px solid var(--gold2);
+  border-radius:20px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:54px;
+  box-shadow:0 0 60px var(--gold-glow),0 0 120px rgba(245,200,66,.1);
+  animation:popIn .8s cubic-bezier(.34,1.56,.64,1) .2s both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(.2) rotate(-20deg)}to{opacity:1;transform:none}}
+.splash-title{
+  font-family:'Oswald',sans-serif;
+  font-size:32px;font-weight:700;letter-spacing:6px;
+  color:var(--gold);
+  text-shadow:0 0 30px var(--gold-glow);
+  animation:fadeUp .7s ease .8s both;
+}
+.splash-sub{
+  font-size:10px;letter-spacing:4px;color:var(--text-dim);
+  animation:fadeUp .7s ease 1s both;
+}
+.splash-bar-wrap{
+  width:200px;height:3px;background:var(--bg3);border-radius:3px;overflow:hidden;
+  animation:fadeUp .5s ease .4s both;
+}
+.splash-bar{
+  height:100%;width:0;
+  background:linear-gradient(90deg,var(--gold2),var(--gold));
+  border-radius:3px;transition:width .05s linear;
+}
+.splash-pct{
+  font-size:12px;color:var(--gold);letter-spacing:3px;font-weight:600;
+  animation:fadeUp .5s ease .4s both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ── AUTH ── */
+#auth{
+  position:fixed;inset:0;z-index:100;
+  background:var(--bg);
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+}
+#auth.on{display:flex}
+.auth-icon{font-size:52px;margin-bottom:8px;animation:popIn .6s cubic-bezier(.34,1.56,.64,1) both}
+.auth-title{font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;letter-spacing:4px;color:var(--gold);margin-bottom:4px}
+.auth-sub{font-size:10px;letter-spacing:2px;color:var(--text-dim);margin-bottom:32px}
+.auth-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:24px;width:100%;max-width:360px;
+}
+.auth-user-row{
+  display:flex;align-items:center;gap:14px;
+  background:var(--bg3);border:1px solid var(--gold2);
+  border-radius:10px;padding:14px;margin-bottom:20px;
+}
+.auth-ava{
+  width:52px;height:52px;border-radius:10px;
+  background:var(--bg2);border:2px solid var(--gold2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:var(--gold);
+  flex-shrink:0;overflow:hidden;position:relative;
+}
+.auth-ava img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.auth-uname{font-family:'Oswald',sans-serif;font-size:17px;font-weight:600;color:var(--text)}
+.auth-utag{font-size:11px;color:var(--gold);margin-top:3px}
+.auth-welcome{
+  text-align:center;margin-bottom:16px;
+  font-size:11px;color:var(--text-dim);letter-spacing:1px;line-height:1.7;
+}
+.auth-bonus{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:var(--gold-bg);border:1px solid var(--gold2);border-radius:10px;
+  padding:14px;margin-bottom:20px;
+}
+.auth-bonus-emoji{font-size:28px}
+.auth-bonus-text{font-family:'Oswald',sans-serif}
+.auth-bonus-label{font-size:11px;color:var(--text-dim);letter-spacing:1px}
+.auth-bonus-amount{font-size:22px;font-weight:700;color:var(--gold)}
+.btn-primary{
+  width:100%;padding:16px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  color:#0a0a0f;font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;
+  letter-spacing:3px;cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 20px var(--gold-glow);
+}
+.btn-primary:active{transform:scale(.97)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── APP ── */
+#app{display:none;flex-direction:column;min-height:100vh}
+#app.on{display:flex}
+
+/* TOP BAR */
+.topbar{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:12px 16px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:50;
+}
+.topbar-ava{
+  width:38px;height:38px;border-radius:8px;
+  background:var(--bg3);border:2px solid var(--gold2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:var(--gold);
+  flex-shrink:0;overflow:hidden;position:relative;
+}
+.topbar-ava img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.topbar-info{flex:1;min-width:0}
+.topbar-name{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-tag{font-size:10px;color:var(--text-dim)}
+.balance-pill{
+  display:flex;align-items:center;gap:6px;
+  background:var(--gold-bg);border:1px solid var(--gold2);border-radius:20px;
+  padding:6px 12px;flex-shrink:0;
+}
+.balance-pill span{font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:var(--gold)}
+.balance-pill small{font-size:9px;color:var(--gold2);letter-spacing:1px}
+
+/* NAV TABS */
+.nav{
+  display:flex;gap:4px;padding:10px 14px;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+}
+.nav-tab{
+  flex:1;padding:10px 4px;text-align:center;cursor:pointer;
+  font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;
+  color:var(--text-dim);border:1px solid var(--border);border-radius:6px;
+  transition:all .2s;user-select:none;background:transparent;
+}
+.nav-tab.on{
+  background:var(--gold-bg);border-color:var(--gold2);color:var(--gold);
+}
+
+/* PAGES */
+.page{display:none;padding:16px;flex-direction:column;gap:14px;flex:1}
+.page.on{display:flex}
+
+/* GAME CARD */
+.game-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;
+}
+.game-header{
+  padding:16px 20px 12px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.game-icon{font-size:28px}
+.game-title{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:var(--text);letter-spacing:2px}
+.game-sub{font-size:10px;color:var(--text-dim);letter-spacing:1px}
+.game-body{padding:20px}
+
+/* 3D DICE CANVAS */
+#dice-scene{
+  width:100%;height:200px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;margin-bottom:20px;
+}
+canvas#diceCanvas{
+  border-radius:12px;
+  cursor:pointer;
+}
+.dice-result-overlay{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+  opacity:0;transition:opacity .3s;
+}
+.dice-result-overlay.show{opacity:1}
+.dice-result-bubble{
+  background:rgba(0,0,0,.85);border:2px solid var(--gold);
+  border-radius:50px;padding:10px 24px;
+  font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:var(--gold);
+  box-shadow:0 0 30px var(--gold-glow);
+}
+
+/* BET CONTROLS */
+.bet-section{margin-bottom:16px}
+.bet-label{font-size:10px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px}
+.bet-input-row{display:flex;gap:8px;align-items:center}
+.bet-input{
+  flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:12px 14px;color:var(--text);font-family:'Share Tech Mono',monospace;
+  font-size:18px;outline:none;transition:border-color .2s;text-align:center;
+}
+.bet-input:focus{border-color:var(--gold2)}
+.bet-quick{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.bet-q{
+  padding:6px 12px;border-radius:6px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--text-dim);font-size:11px;
+  cursor:pointer;transition:all .2s;font-family:'Oswald',sans-serif;letter-spacing:1px;
+}
+.bet-q:active{background:var(--gold-bg);border-color:var(--gold2);color:var(--gold)}
+
+/* CHOICE BUTTONS */
+.choice-section{margin-bottom:20px}
+.choice-label{font-size:10px;letter-spacing:2px;color:var(--text-dim);margin-bottom:8px}
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.choice-btn{
+  padding:14px 10px;border-radius:10px;border:2px solid var(--border);
+  background:var(--bg3);color:var(--text-dim);
+  font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;
+  cursor:pointer;transition:all .2s;text-align:center;user-select:none;
+}
+.choice-btn .cb-emoji{font-size:22px;display:block;margin-bottom:4px}
+.choice-btn .cb-label{font-size:12px}
+.choice-btn .cb-odds{font-size:10px;color:var(--text-dim);margin-top:2px}
+.choice-btn:active{transform:scale(.97)}
+.choice-btn.selected{border-color:var(--gold);background:var(--gold-bg);color:var(--gold)}
+.choice-btn.selected .cb-odds{color:var(--gold2)}
+.choice-nums{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.choice-num{
+  padding:12px 4px;border-radius:8px;border:2px solid var(--border);
+  background:var(--bg3);color:var(--text-dim);
+  font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;
+  cursor:pointer;transition:all .2s;text-align:center;user-select:none;
+}
+.choice-num:active{transform:scale(.93)}
+.choice-num.selected{border-color:var(--gold);background:var(--gold-bg);color:var(--gold)}
+
+/* ROLL BUTTON */
+.roll-btn{
+  width:100%;padding:18px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,#b8860b,var(--gold));
+  color:#0a0a0f;font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;letter-spacing:4px;
+  cursor:pointer;transition:all .2s;
+  box-shadow:0 6px 24px var(--gold-glow);position:relative;overflow:hidden;
+}
+.roll-btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);
+}
+.roll-btn:active{transform:scale(.98)}
+.roll-btn:disabled{opacity:.5;cursor:not-allowed}
+.roll-btn.rolling{animation:pulse .5s ease infinite alternate}
+@keyframes pulse{to{box-shadow:0 6px 36px rgba(245,200,66,.5)}}
+
+/* RESULT POPUP */
+.result-popup{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.result-popup.show{opacity:1;pointer-events:auto}
+.result-card{
+  background:var(--card);border:2px solid var(--border);border-radius:20px;
+  padding:32px 28px;text-align:center;width:88%;max-width:340px;
+  transform:scale(.8);transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.result-popup.show .result-card{transform:scale(1)}
+.result-emoji{font-size:64px;margin-bottom:12px;display:block}
+.result-dice{font-size:80px;margin-bottom:8px;display:block;animation:diceSpin .6s ease}
+@keyframes diceSpin{from{transform:rotate(-30deg) scale(.5)}to{transform:rotate(0) scale(1)}}
+.result-title{font-family:'Oswald',sans-serif;font-size:32px;font-weight:700;letter-spacing:3px;margin-bottom:6px}
+.result-title.win{color:var(--green)}
+.result-title.lose{color:var(--red)}
+.result-amount{font-size:28px;font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:4px}
+.result-amount.win{color:var(--gold)}
+.result-amount.lose{color:var(--red)}
+.result-balance{font-size:13px;color:var(--text-dim);margin-bottom:20px}
+.result-close{
+  padding:14px 40px;border-radius:10px;border:none;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;
+  letter-spacing:2px;cursor:pointer;transition:all .2s;
+}
+.result-close:active{background:var(--card)}
+
+/* PROFILE PAGE */
+.profile-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;
+  display:flex;align-items:center;gap:16px;
+}
+.profile-big-ava{
+  width:70px;height:70px;border-radius:14px;
+  background:var(--bg3);border:3px solid var(--gold2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Oswald',sans-serif;font-size:28px;font-weight:700;color:var(--gold);
+  flex-shrink:0;overflow:hidden;position:relative;
+  box-shadow:0 0 20px var(--gold-glow);
+}
+.profile-big-ava img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.profile-name{font-family:'Oswald',sans-serif;font-size:20px;font-weight:700;color:var(--text)}
+.profile-tag{font-size:12px;color:var(--gold);margin-top:4px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-box{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:16px;text-align:center;
+}
+.stat-val{font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:var(--gold)}
+.stat-label{font-size:9px;letter-spacing:2px;color:var(--text-dim);margin-top:4px}
+
+/* HISTORY */
+.section-title{font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;letter-spacing:3px;color:var(--text-dim)}
+.history-list{display:flex;flex-direction:column;gap:8px}
+.hist-item{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;display:flex;align-items:center;gap:12px;
+}
+.hist-item.win{border-left:3px solid var(--green)}
+.hist-item.lose{border-left:3px solid var(--red)}
+.hist-dice-num{
+  width:36px;height:36px;border-radius:8px;
+  background:var(--bg3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.hist-info{flex:1}
+.hist-choice{font-size:12px;color:var(--text-dim)}
+.hist-bet{font-size:13px;color:var(--text)}
+.hist-payout{font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;text-align:right}
+.hist-payout.win{color:var(--green)}
+.hist-payout.lose{color:var(--red)}
+
+/* COMING SOON CARDS */
+.coming-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.coming-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:20px 14px;text-align:center;position:relative;overflow:hidden;
+}
+.coming-card::after{
+  content:'СКОРО';position:absolute;top:8px;right:8px;
+  font-size:7px;letter-spacing:2px;font-family:'Oswald',sans-serif;font-weight:700;
+  background:var(--bg3);border:1px solid var(--border);color:var(--text-dim);
+  padding:2px 6px;border-radius:3px;
+}
+.coming-card-icon{font-size:40px;margin-bottom:10px}
+.coming-card-title{font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;color:var(--text-dim);letter-spacing:2px}
+
+/* DAILY BONUS BTN */
+.daily-card{
+  background:linear-gradient(135deg,#1a1428,#0f1428);
+  border:1px solid #2a2448;border-radius:16px;
+  padding:20px;display:flex;align-items:center;gap:16px;cursor:pointer;
+  transition:all .2s;
+}
+.daily-card:active{transform:scale(.98)}
+.daily-icon{font-size:44px;flex-shrink:0}
+.daily-title{font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:var(--blue);letter-spacing:2px}
+.daily-sub{font-size:10px;color:var(--text-dim);margin-top:4px}
+
+/* LEADERBOARD */
+.leader-list{display:flex;flex-direction:column;gap:8px}
+.leader-item{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;display:flex;align-items:center;gap:12px;
+}
+.leader-rank{
+  width:28px;font-family:'Oswald',sans-serif;font-size:18px;font-weight:700;
+  color:var(--text-dim);text-align:center;flex-shrink:0;
+}
+.leader-rank.top1{color:#ffd700}
+.leader-rank.top2{color:#c0c0c0}
+.leader-rank.top3{color:#cd7f32}
+.leader-name{flex:1;font-size:13px;color:var(--text)}
+.leader-bal{font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:var(--gold)}
+
+/* TOAST */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--card);border:1px solid var(--border);border-radius:30px;
+  padding:10px 22px;font-size:13px;color:var(--text);
+  z-index:999;transition:transform .3s;white-space:nowrap;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.win{border-color:var(--green);color:var(--green)}
+#toast.lose{border-color:var(--red);color:var(--red)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">🎰</div>
+  <div class="splash-title">LUCKY DICE</div>
+  <div class="splash-sub">CASINO · TELEGRAM MINI APP</div>
+  <div class="splash-bar-wrap"><div class="splash-bar" id="splashBar"></div></div>
+  <div class="splash-pct" id="splashPct">0%</div>
+</div>
+
+<!-- AUTH -->
+<div id="auth">
+  <div class="auth-icon">🎰</div>
+  <div class="auth-title">LUCKY DICE</div>
+  <div class="auth-sub">КАЗИНО · ВОЙТИ ЧЕРЕЗ TELEGRAM</div>
+  <div class="auth-card">
+    <div class="auth-user-row" id="authUserRow">
+      <div class="auth-ava" id="authAva">?</div>
+      <div>
+        <div class="auth-uname" id="authName">—</div>
+        <div class="auth-utag" id="authTag">—</div>
+      </div>
+    </div>
+    <div class="auth-welcome">
+      Твой аккаунт привязан к Telegram.<br/>
+      Никакого пароля — просто нажми кнопку!
+    </div>
+    <div class="auth-bonus">
+      <div class="auth-bonus-emoji">🎁</div>
+      <div class="auth-bonus-text">
+        <div class="auth-bonus-label">СТАРТОВЫЙ БОНУС</div>
+        <div class="auth-bonus-amount">10,000 💰</div>
+      </div>
+    </div>
+    <button class="btn-primary" id="authBtn" onclick="doRegister()">🚀 ВОЙТИ В КАЗИНО</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-ava" id="tbAva"></div>
+    <div class="topbar-info">
+      <div class="topbar-name" id="tbName"></div>
+      <div class="topbar-tag" id="tbTag"></div>
+    </div>
+    <div class="balance-pill">
+      <small>💰</small>
+      <span id="balanceDisp">0</span>
+    </div>
+  </div>
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-tab on" id="tabDice" onclick="showPage('dice')">🎲 КУБИК</div>
+    <div class="nav-tab" id="tabGames" onclick="showPage('games')">🎮 ИГРЫ</div>
+    <div class="nav-tab" id="tabProfile" onclick="showPage('profile')">👤 ПРОФИЛЬ</div>
+    <div class="nav-tab" id="tabTop" onclick="showPage('top')">🏆 ТОП</div>
+  </div>
+
+  <!-- PAGE: DICE -->
+  <div class="page on" id="pageDice">
+    <div class="game-card">
+      <div class="game-header">
+        <span class="game-icon">🎲</span>
+        <div>
+          <div class="game-title">КУБИК</div>
+          <div class="game-sub">БРОСАЙ И ПОБЕЖДАЙ</div>
+        </div>
+      </div>
+      <div class="game-body">
+        <!-- 3D DICE -->
+        <div id="dice-scene">
+          <canvas id="diceCanvas" width="280" height="200"></canvas>
+          <div class="dice-result-overlay" id="diceOverlay">
+            <div class="dice-result-bubble" id="diceOverlayText"></div>
+          </div>
+        </div>
+
+        <!-- BET -->
+        <div class="bet-section">
+          <div class="bet-label">СТАВКА</div>
+          <div class="bet-input-row">
+            <input class="bet-input" type="number" id="betInput" value="100" min="1" max="1000000"/>
+          </div>
+          <div class="bet-quick">
+            <button class="bet-q" onclick="setBet(100)">100</button>
+            <button class="bet-q" onclick="setBet(500)">500</button>
+            <button class="bet-q" onclick="setBet(1000)">1K</button>
+            <button class="bet-q" onclick="setBet(5000)">5K</button>
+            <button class="bet-q" onclick="setBet(10000)">10K</button>
+            <button class="bet-q" onclick="halfBet()">½</button>
+            <button class="bet-q" onclick="maxBet()">MAX</button>
+          </div>
+        </div>
+
+        <!-- CHOICE -->
+        <div class="choice-section">
+          <div class="choice-label">ВЫБЕРИ ИСХОД</div>
+          <div class="choice-grid">
+            <div class="choice-btn" id="chHigh" onclick="selectChoice('high')">
+              <span class="cb-emoji">🔼</span>
+              <span class="cb-label">ВЫСОКИЙ (4-6)</span>
+              <div class="cb-odds">×1.9</div>
+            </div>
+            <div class="choice-btn" id="chLow" onclick="selectChoice('low')">
+              <span class="cb-emoji">🔽</span>
+              <span class="cb-label">НИЗКИЙ (1-3)</span>
+              <div class="cb-odds">×1.9</div>
+            </div>
+          </div>
+          <div class="choice-label" style="margin-top:10px;margin-bottom:8px">ТОЧНОЕ ЧИСЛО <span style="color:var(--gold);font-size:9px">×5.0</span></div>
+          <div class="choice-nums">
+            <div class="choice-num" id="chN1" onclick="selectChoice('1')">1</div>
+            <div class="choice-num" id="chN2" onclick="selectChoice('2')">2</div>
+            <div class="choice-num" id="chN3" onclick="selectChoice('3')">3</div>
+            <div class="choice-num" id="chN4" onclick="selectChoice('4')">4</div>
+            <div class="choice-num" id="chN5" onclick="selectChoice('5')">5</div>
+            <div class="choice-num" id="chN6" onclick="selectChoice('6')">6</div>
+          </div>
+        </div>
+
+        <button class="roll-btn" id="rollBtn" onclick="doRoll()">🎲 БРОСИТЬ КУБИК</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: GAMES -->
+  <div class="page" id="pageGames">
+    <div class="daily-card" onclick="doDaily()">
+      <div class="daily-icon">🎁</div>
+      <div>
+        <div class="daily-title">ЕЖЕДНЕВНЫЙ БОНУС</div>
+        <div class="daily-sub">Получай от 500 до 5,000 монет каждые 24 часа</div>
+      </div>
+    </div>
+    <div class="section-title">ВСЕ ИГРЫ</div>
+    <div class="coming-grid">
+      <div class="coming-card">
+        <div class="coming-card-icon">🎲</div>
+        <div class="coming-card-title">КУБИК</div>
+      </div>
+      <div class="coming-card">
+        <div class="coming-card-icon">🃏</div>
+        <div class="coming-card-title">ПОКЕР</div>
+      </div>
+      <div class="coming-card">
+        <div class="coming-card-icon">📈</div>
+        <div class="coming-card-title">КРАШ</div>
+      </div>
+      <div class="coming-card">
+        <div class="coming-card-icon">🎰</div>
+        <div class="coming-card-title">СЛОТЫ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: PROFILE -->
+  <div class="page" id="pageProfile">
+    <div class="profile-card">
+      <div class="profile-big-ava" id="profAva"></div>
+      <div>
+        <div class="profile-name" id="profName"></div>
+        <div class="profile-tag" id="profTag"></div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-val" id="statBalance">0</div>
+        <div class="stat-label">💰 БАЛАНС</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statGames">0</div>
+        <div class="stat-label">🎮 ИГР</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statWins">0</div>
+        <div class="stat-label">🏆 ВЫИГРАНО</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statBets">0</div>
+        <div class="stat-label">🎯 ПОСТАВЛЕНО</div>
+      </div>
+    </div>
+    <div class="section-title">ПОСЛЕДНИЕ ИГРЫ</div>
+    <div class="history-list" id="histList">
+      <div style="text-align:center;color:var(--text-dim);font-size:12px;padding:20px">Нет игр</div>
+    </div>
+  </div>
+
+  <!-- PAGE: TOP -->
+  <div class="page" id="pageTop">
+    <div class="section-title">🏆 ТОП ИГРОКОВ</div>
+    <div class="leader-list" id="leaderList">
+      <div style="text-align:center;color:var(--text-dim);padding:20px">Загрузка...</div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT POPUP -->
+<div class="result-popup" id="resultPopup" onclick="closeResult()">
+  <div class="result-card" onclick="event.stopPropagation()">
+    <span class="result-dice" id="resDice"></span>
+    <div class="result-title" id="resTitle"></div>
+    <div class="result-amount" id="resAmount"></div>
+    <div class="result-balance" id="resBalance"></div>
+    <button class="result-close" onclick="closeResult()">ПРОДОЛЖИТЬ</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ── CONFIG ──
+const BACKEND = 'https://your-domain.com'; // ЗАМЕНИ НА СВОЙ URL
+const DICE_FACES = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+
+// ── STATE ──
+let tgUser = null;
+let initData = '';
+let currentUser = null;
+let selectedChoice = 'high';
+
+// ── TELEGRAM INIT ──
+const tg = window.Telegram?.WebApp;
+if(tg){
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor('#0a0a0f');
+  tg.setBackgroundColor('#0a0a0f');
+  tgUser = tg.initDataUnsafe?.user || null;
+  initData = tg.initData || '';
+}
+
+// ── SPLASH ANIMATION ──
+(function(){
+  const bar = document.getElementById('splashBar');
+  const pct = document.getElementById('splashPct');
+  let p = 0;
+  const msgs = ['ИНИЦИАЛИЗАЦИЯ...','ЗАГРУЗКА...','ПОДКЛЮЧЕНИЕ...','ГОТОВО!'];
+  let mi = 0;
+  const iv = setInterval(()=>{
+    p += Math.random() * 18 + 4;
+    if(p > 100) p = 100;
+    bar.style.width = p + '%';
+    pct.textContent = Math.floor(p) + '%';
+    if(p >= 100){
+      clearInterval(iv);
+      setTimeout(showAuth, 300);
+    }
+  }, 80);
+})();
+
+function showAuth(){
+  document.getElementById('splash').style.display = 'none';
+
+  if(!tgUser){
+    // Dev fallback
+    tgUser = {id: 123456789, first_name: 'Test', last_name: 'User', username: 'testuser'};
+    initData = `user=${encodeURIComponent(JSON.stringify(tgUser))}&hash=devmode`;
+  }
+
+  document.getElementById('authName').textContent = `${tgUser.first_name||''} ${tgUser.last_name||''}`.trim();
+  document.getElementById('authTag').textContent = tgUser.username ? `@${tgUser.username}` : `ID: ${tgUser.id}`;
+  const initials = (tgUser.first_name||'?')[0].toUpperCase();
+  document.getElementById('authAva').textContent = initials;
+
+  // Try load photo
+  if(tgUser.photo_url){
+    const img = document.createElement('img');
+    img.src = tgUser.photo_url;
+    document.getElementById('authAva').appendChild(img);
+  }
+
+  // Check if already registered
+  autoLogin();
+}
+
+async function autoLogin(){
+  try{
+    const r = await fetch(`${BACKEND}/auth/profile`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({init_data: initData})
+    });
+    const d = await r.json();
+    if(d.ok){
+      currentUser = d.user;
+      setupApp(d.user, d.history || []);
+      return;
+    }
+  }catch(e){}
+  document.getElementById('auth').classList.add('on');
+}
+
+async function doRegister(){
+  const btn = document.getElementById('authBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ ПОДКЛЮЧЕНИЕ...';
+  try{
+    const r = await fetch(`${BACKEND}/auth/register`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({init_data: initData, photo: tgUser?.photo_url||''})
+    });
+    const d = await r.json();
+    if(d.ok){
+      currentUser = d.user;
+      document.getElementById('auth').classList.remove('on');
+      setupApp(d.user, []);
+      if(d.is_new) toast('🎁 Добро пожаловать! +10,000 монет!','win');
+    } else {
+      toast('❌ Ошибка: ' + d.error,'lose');
+    }
+  }catch(e){
+    toast('❌ Нет подключения','lose');
+  }
+  btn.disabled = false;
+  btn.textContent = '🚀 ВОЙТИ В КАЗИНО';
+}
+
+function setupApp(user, history){
+  document.getElementById('app').classList.add('on');
+
+  // Topbar
+  const initials = (user.name||'?')[0].toUpperCase();
+  const tbAva = document.getElementById('tbAva');
+  tbAva.textContent = initials;
+  if(user.photo){ const i=document.createElement('img');i.src=user.photo;tbAva.appendChild(i); }
+  document.getElementById('tbName').textContent = user.name || 'Игрок';
+  document.getElementById('tbTag').textContent = user.username || '';
+  updateBalance(user.balance);
+
+  // Profile
+  const profAva = document.getElementById('profAva');
+  profAva.textContent = initials;
+  if(user.photo){ const i=document.createElement('img');i.src=user.photo;profAva.appendChild(i); }
+  document.getElementById('profName').textContent = user.name;
+  document.getElementById('profTag').textContent = user.username || '';
+  updateStats(user);
+  renderHistory(history);
+
+  // Init dice
+  initDice();
+  selectChoice('high');
+}
+
+function updateBalance(bal){
+  if(currentUser) currentUser.balance = bal;
+  document.getElementById('balanceDisp').textContent = bal.toLocaleString('ru');
+  document.getElementById('statBalance').textContent = bal.toLocaleString('ru');
+}
+
+function updateStats(u){
+  document.getElementById('statBalance').textContent = (u.balance||0).toLocaleString('ru');
+  document.getElementById('statGames').textContent = (u.games_played||0).toLocaleString('ru');
+  document.getElementById('statWins').textContent = (u.total_wins||0).toLocaleString('ru');
+  document.getElementById('statBets').textContent = (u.total_bets||0).toLocaleString('ru');
+}
+
+function renderHistory(history){
+  const el = document.getElementById('histList');
+  if(!history || !history.length){
+    el.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:12px;padding:20px">Нет игр</div>';
+    return;
+  }
+  el.innerHTML = history.map(h=>{
+    const face = DICE_FACES[parseInt(h.result||1)-1]||'🎲';
+    const winLose = h.win ? 'win' : 'lose';
+    const profit = h.win ? `+${h.payout.toLocaleString('ru')}` : `-${h.bet.toLocaleString('ru')}`;
+    const choiceLabel = h.choice === 'high' ? 'ВЫСОКИЙ' : h.choice === 'low' ? 'НИЗКИЙ' : `ТОЧНО ${h.choice}`;
+    return `<div class="hist-item ${winLose}">
+      <div class="hist-dice-num">${face}</div>
+      <div class="hist-info">
+        <div class="hist-choice">${choiceLabel} · Ставка: ${h.bet.toLocaleString('ru')}</div>
+        <div class="hist-bet">Выпало: ${h.result}</div>
+      </div>
+      <div class="hist-payout ${winLose}">${profit}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── NAVIGATION ──
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('page'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('on');
+  document.getElementById('tab'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('on');
+  if(name==='top') loadLeaderboard();
+  if(name==='profile') refreshProfile();
+}
+
+// ── 3D DICE RENDERER ──
+let diceCanvas, diceCtx, diceAnim, diceCurrentFace = 1;
+
+function initDice(){
+  diceCanvas = document.getElementById('diceCanvas');
+  diceCtx = diceCanvas.getContext('2d');
+  drawDice(diceCurrentFace, 0);
+}
+
+function drawDice(face, rotation){
+  const ctx = diceCtx;
+  const W = diceCanvas.width;
+  const H = diceCanvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const cx = W/2, cy = H/2;
+  const size = 80;
+  const r = 18; // border radius
+
+  // Shadow
+  ctx.save();
+  ctx.shadowColor = 'rgba(245,200,66,0.3)';
+  ctx.shadowBlur = 30;
+
+  // Transform for rotation
+  ctx.translate(cx, cy);
+  ctx.rotate(rotation);
+  ctx.translate(-size/2, -size/2);
+
+  // Draw rounded rect
+  roundRect(ctx, 0, 0, size, size, r);
+  const grad = ctx.createLinearGradient(0,0,size,size);
+  grad.addColorStop(0, '#2a2030');
+  grad.addColorStop(0.5, '#1a1628');
+  grad.addColorStop(1, '#0f0f18');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Border glow
+  roundRect(ctx, 0, 0, size, size, r);
+  ctx.strokeStyle = '#f5c842';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Top face shine
+  roundRect(ctx, 2, 2, size-4, size/3, r-2);
+  const shine = ctx.createLinearGradient(0,0,0,size/3);
+  shine.addColorStop(0, 'rgba(255,255,255,0.08)');
+  shine.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = shine;
+  ctx.fill();
+
+  ctx.restore();
+
+  // Draw dots
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rotation);
+  ctx.translate(-size/2, -size/2);
+  drawDots(ctx, face, size);
+  ctx.restore();
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+function drawDots(ctx, face, size){
+  const positions = {
+    1: [[0.5,0.5]],
+    2: [[0.25,0.25],[0.75,0.75]],
+    3: [[0.25,0.25],[0.5,0.5],[0.75,0.75]],
+    4: [[0.25,0.25],[0.75,0.25],[0.25,0.75],[0.75,0.75]],
+    5: [[0.25,0.25],[0.75,0.25],[0.5,0.5],[0.25,0.75],[0.75,0.75]],
+    6: [[0.25,0.22],[0.75,0.22],[0.25,0.5],[0.75,0.5],[0.25,0.78],[0.75,0.78]]
+  };
+  const dots = positions[face] || positions[1];
+  const dotR = 7;
+
+  dots.forEach(([px,py])=>{
+    const x = px * size;
+    const y = py * size;
+    ctx.beginPath();
+    ctx.arc(x, y, dotR, 0, Math.PI*2);
+    // Gold dot gradient
+    const dg = ctx.createRadialGradient(x-2,y-2,1,x,y,dotR);
+    dg.addColorStop(0, '#fff8dc');
+    dg.addColorStop(0.4, '#f5c842');
+    dg.addColorStop(1, '#b8860b');
+    ctx.fillStyle = dg;
+    ctx.fill();
+    ctx.shadowColor = 'rgba(245,200,66,0.6)';
+    ctx.shadowBlur = 8;
+    ctx.fill();
+  });
+}
+
+function animateDiceRoll(targetFace, onDone){
+  let elapsed = 0;
+  const duration = 1200;
+  const fps = 60;
+  const interval = 1000/fps;
+  let lastFaceSwitch = 0;
+  let displayFace = 1;
+  cancelAnimationFrame(diceAnim);
+
+  const rollBtn = document.getElementById('rollBtn');
+  rollBtn.classList.add('rolling');
+
+  // Haptic
+  if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+  let startTime = null;
+  function frame(ts){
+    if(!startTime) startTime = ts;
+    elapsed = ts - startTime;
+    const progress = Math.min(elapsed/duration, 1);
+
+    // Ease out rotation speed
+    const speed = (1 - progress) * 0.25 + 0.02;
+    const rot = progress * Math.PI * 8 * (1 - progress * 0.5);
+
+    // Switch face every ~100ms
+    if(elapsed - lastFaceSwitch > 100){
+      displayFace = elapsed/duration > 0.7 ? targetFace : Math.ceil(Math.random()*6);
+      lastFaceSwitch = elapsed;
+    }
+
+    drawDice(displayFace, Math.sin(rot) * 0.5 * (1-progress));
+
+    if(progress < 1){
+      diceAnim = requestAnimationFrame(frame);
+    } else {
+      drawDice(targetFace, 0);
+      rollBtn.classList.remove('rolling');
+      if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+      if(onDone) onDone();
+    }
+  }
+  diceAnim = requestAnimationFrame(frame);
+}
+
+// ── GAME LOGIC ──
+function selectChoice(c){
+  selectedChoice = c;
+  document.querySelectorAll('.choice-btn,.choice-num').forEach(el=>el.classList.remove('selected'));
+  if(c==='high') document.getElementById('chHigh').classList.add('selected');
+  else if(c==='low') document.getElementById('chLow').classList.add('selected');
+  else {
+    const el = document.getElementById('chN'+c);
+    if(el) el.classList.add('selected');
+  }
+}
+
+function setBet(amount){ document.getElementById('betInput').value = amount; }
+function halfBet(){ const v=parseInt(document.getElementById('betInput').value)||100; setBet(Math.max(1,Math.floor(v/2))); }
+function maxBet(){ if(currentUser) setBet(currentUser.balance); }
+
+async function doRoll(){
+  if(!currentUser){ toast('❌ Войди в аккаунт','lose'); return; }
+  const bet = parseInt(document.getElementById('betInput').value);
+  if(!bet || bet<=0){ toast('❌ Введи ставку','lose'); return; }
+  if(bet > currentUser.balance){ toast('❌ Недостаточно монет','lose'); return; }
+  if(!selectedChoice){ toast('❌ Выбери исход','lose'); return; }
+
+  const rollBtn = document.getElementById('rollBtn');
+  rollBtn.disabled = true;
+
+  try{
+    const r = await fetch(`${BACKEND}/game/dice/roll`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({init_data:initData, bet, choice:selectedChoice})
+    });
+    const d = await r.json();
+    if(!d.ok){
+      toast('❌ '+d.error,'lose');
+      rollBtn.disabled=false;
+      return;
+    }
+
+    // Animate then show result
+    animateDiceRoll(d.result, ()=>{
+      updateBalance(d.balance);
+      setTimeout(()=>showResult(d), 300);
+      rollBtn.disabled=false;
+    });
+
+  }catch(e){
+    toast('❌ Ошибка соединения','lose');
+    rollBtn.disabled=false;
+  }
+}
+
+function showResult(d){
+  const popup = document.getElementById('resultPopup');
+  const face = DICE_FACES[d.result-1];
+  document.getElementById('resDice').textContent = face;
+
+  if(d.win){
+    document.getElementById('resTitle').textContent = '🎉 ПОБЕДА!';
+    document.getElementById('resTitle').className = 'result-title win';
+    document.getElementById('resAmount').textContent = `+${d.payout.toLocaleString('ru')} 💰`;
+    document.getElementById('resAmount').className = 'result-amount win';
+  } else {
+    document.getElementById('resTitle').textContent = '💸 МИМО';
+    document.getElementById('resTitle').className = 'result-title lose';
+    document.getElementById('resAmount').textContent = `-${d.bet.toLocaleString('ru')} 💰`;
+    document.getElementById('resAmount').className = 'result-amount lose';
+  }
+  document.getElementById('resBalance').textContent = `Баланс: ${d.balance.toLocaleString('ru')} монет`;
+  popup.classList.add('show');
+
+  if(tg?.HapticFeedback){
+    if(d.win) tg.HapticFeedback.notificationOccurred('success');
+    else tg.HapticFeedback.notificationOccurred('error');
+  }
+}
+
+function closeResult(){
+  document.getElementById('resultPopup').classList.remove('show');
+  refreshProfile();
+}
+
+// ── DAILY BONUS ──
+async function doDaily(){
+  try{
+    const r = await fetch(`${BACKEND}/game/daily`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({init_data:initData})
+    });
+    const d = await r.json();
+    if(d.ok){
+      updateBalance(d.balance);
+      toast(`🎁 Бонус получен: +${d.bonus.toLocaleString('ru')} монет!`,'win');
+    } else {
+      toast('⏰ ' + d.error);
+    }
+  }catch(e){ toast('❌ Ошибка','lose'); }
+}
+
+// ── PROFILE REFRESH ──
+async function refreshProfile(){
+  if(!currentUser) return;
+  try{
+    const r = await fetch(`${BACKEND}/auth/profile`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({init_data:initData})
+    });
+    const d = await r.json();
+    if(d.ok){
+      currentUser = d.user;
+      updateBalance(d.user.balance);
+      updateStats(d.user);
+      renderHistory(d.history||[]);
+    }
+  }catch(e){}
+}
+
+// ── LEADERBOARD ──
+async function loadLeaderboard(){
+  try{
+    const r = await fetch(`${BACKEND}/game/leaderboard`);
+    const d = await r.json();
+    if(!d.ok) return;
+    const el = document.getElementById('leaderList');
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = d.leaders.map((u,i)=>{
+      const rankClass = i===0?'top1':i===1?'top2':i===2?'top3':'';
+      const rankLabel = i<3 ? medals[i] : `#${i+1}`;
+      return `<div class="leader-item">
+        <div class="leader-rank ${rankClass}">${rankLabel}</div>
+        <div class="leader-name">${u.name||'Игрок'}<br/><span style="font-size:10px;color:var(--text-dim)">${u.username||''}</span></div>
+        <div class="leader-bal">${u.balance.toLocaleString('ru')} 💰</div>
+      </div>`;
+    }).join('');
+  }catch(e){}
+}
+
+// ── TOAST ──
+let _tt;
+function toast(msg, type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className=type?`show ${type}`:'show';
+  clearTimeout(_tt);
+  _tt=setTimeout(()=>{ el.className=''; },2800);
+}
+</script>
+</body>
+</html>
